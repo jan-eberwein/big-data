@@ -9,6 +9,52 @@ This project analyzes large-scale AIS vessel tracking data using Apache Spark, S
 - Tableau / Databricks / Kibana / Superset
 - GitHub
 
+## Local Spark Setup
+
+This repository uses Docker Compose to run a local Apache Spark standalone setup. Docker keeps the Spark version and runtime environment consistent across development machines.
+
+Prerequisites:
+
+- Docker Desktop
+- Docker Compose
+
+Start Spark:
+
+```bash
+docker compose up -d
+```
+
+Open the Spark master UI:
+
+```text
+http://localhost:8080
+```
+
+Run Spark's built-in Python example as a smoke test:
+
+```bash
+docker compose exec spark-master /opt/spark/bin/spark-submit --master spark://spark-master:7077 /opt/spark/examples/src/main/python/pi.py 10
+```
+
+Stop Spark:
+
+```bash
+docker compose down
+```
+
+## Data Policy
+
+Large source and processed datasets must stay local and must not be committed to git.
+
+Recommended local data layout once datasets are added:
+
+```text
+data/
+  raw/          # original local source files, not committed
+  processed/    # generated local data, not committed
+  sample/       # small committed sample files only
+```
+
 ## Datasets
 - NOAA Marine Cadastre AIS Vessel Tracking Data 2025
 - EU MRV Ship CO₂ Emissions Dataset 2024
