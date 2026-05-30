@@ -24,6 +24,12 @@ Start Spark:
 docker compose up -d
 ```
 
+If Spark is already running and `docker-compose.yml` changed, recreate the containers:
+
+```bash
+docker compose up -d --force-recreate
+```
+
 The raw data directory is configured in `.env`:
 
 ```text
@@ -87,18 +93,30 @@ When the CSV files are on an external drive, set `RAW_DATA_DIR` in `.env` before
 RAW_DATA_DIR=/Volumes/YourDrive/path/to/ais-csvs
 ```
 
-Run the AIS CSV-to-Parquet loader:
+Run the AIS CSV-to-cleaned-Parquet loader:
 
 ```bash
 docker compose exec spark-master /opt/spark/bin/spark-submit --master spark://spark-master:7077 /workspace/src/load_ais.py
 ```
 
-The default input path is `/workspace/data/raw`. The default output path is `/workspace/data/processed/ais_parquet`.
+The loader reads the NOAA AIS CSV files with an explicit schema, applies first-pass cleaning, and writes Parquet output. The default input path is `/workspace/data/raw`. The default output path is `/workspace/data/processed/ais_parquet`.
+
+Rerunning the loader overwrites `data/processed/ais_parquet`.
+
+The first-pass cleaning removes rows with missing required position fields, invalid coordinates, speeds outside `0-60` knots, and duplicate position rows. Blank vessel text fields are normalized to null.
+
+The default local Spark worker is configured with 4 cores and 8 GB worker memory. The loader requests 6 GB executor memory, 2 executor cores, and 800 shuffle partitions to keep the deduplication shuffle from overloading local memory.
 
 To use custom paths:
 
 ```bash
 docker compose exec spark-master /opt/spark/bin/spark-submit --master spark://spark-master:7077 /workspace/src/load_ais.py --input /workspace/data/raw --output /workspace/data/processed/ais_parquet
+```
+
+If the machine is memory constrained, lower executor memory. If deduplication still runs out of memory, increase shuffle partitions:
+
+```bash
+docker compose exec spark-master /opt/spark/bin/spark-submit --master spark://spark-master:7077 /workspace/src/load_ais.py --executor-memory 4g --shuffle-partitions 1200
 ```
 
 ## Data Policy

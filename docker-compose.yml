@@ -28,6 +28,10 @@ services:
       - spark://spark-master:7077
       - --webui-port
       - "8081"
+      - --cores
+      - "4"
+      - --memory
+      - "8g"
     depends_on:
       - spark-master
     ports:
