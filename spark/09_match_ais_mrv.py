@@ -80,37 +80,38 @@ def main() -> None:
         spark.stop()
         sys.exit(1)
 
-    # Standardize IMO columns names for joining
+    # Standardize IMO column name for joining
     # AIS should have `imo_number` (or `imo`), MRV has `imo_number`
     ais_imo_col = "imo_number" if "imo_number" in ais_df.columns else "imo"
     if ais_imo_col not in ais_df.columns:
-        # Check case-insensitively
         for col in ais_df.columns:
             if col.lower() == "imo_number" or col.lower() == "imo":
                 ais_imo_col = col
                 break
 
-    # Re-cast IMO columns to Integer to ensure type matching
-    ais_df = ais_df.withColumn("ais_imo_join", F.col(ais_imo_col).cast("int")).filter(
-        F.col("ais_imo_join").isNotNull()
+    # Rename AIS column to imo_number to match MRV's naming
+    if ais_imo_col != "imo_number":
+        ais_df = ais_df.withColumnRenamed(ais_imo_col, "imo_number")
+
+    # Cast both IMO columns to Integer to ensure type compatibility and filter nulls
+    ais_df = ais_df.withColumn("imo_number", F.col("imo_number").cast("int")).filter(
+        F.col("imo_number").isNotNull()
     )
-    mrv_df = mrv_df.withColumn("mrv_imo_join", F.col("imo_number").cast("int")).filter(
-        F.col("mrv_imo_join").isNotNull()
+    mrv_df = mrv_df.withColumn("imo_number", F.col("imo_number").cast("int")).filter(
+        F.col("imo_number").isNotNull()
     )
 
     print("Calculating dataset counts...")
-    ais_total_vessels = ais_df.select("ais_imo_join").distinct().count()
-    mrv_total_vessels = mrv_df.select("mrv_imo_join").distinct().count()
+    ais_total_vessels = ais_df.select("imo_number").distinct().count()
+    mrv_total_vessels = mrv_df.select("imo_number").distinct().count()
 
     print(f"Total unique vessels in AIS dataset: {ais_total_vessels}")
     print(f"Total unique vessels in MRV emissions dataset: {mrv_total_vessels}")
 
-    # Perform matching via INNER JOIN on standardized IMO number
+    # Perform matching via INNER JOIN on standardized 'imo_number' string key
+    # Using the string key 'imo_number' automatically resolves duplicate columns in Spark
     print("Performing inner join on IMO number...")
-    matched_df = ais_df.join(mrv_df, ais_df.ais_imo_join == mrv_df.mrv_imo_join, "inner")
-
-    # Drop the temporary join columns
-    matched_df = matched_df.drop("ais_imo_join").drop("mrv_imo_join")
+    matched_df = ais_df.join(mrv_df, "imo_number", "inner")
 
     # Persist for stats calculation
     matched_df.cache()
@@ -137,9 +138,9 @@ def main() -> None:
     # Save summary stats
     print(f"Saving matching statistics summary to: {args.stats_output}")
     stats_data = [
-        ("AIS Total Vessels", ais_total_vessels),
-        ("MRV Total Vessels", mrv_total_vessels),
-        ("Matched Vessels", matched_vessels),
+        ("AIS Total Vessels", float(ais_total_vessels)),
+        ("MRV Total Vessels", float(mrv_total_vessels)),
+        ("Matched Vessels", float(matched_vessels)),
         ("AIS Match Rate (%)", round(ais_match_rate, 2)),
         ("MRV Match Rate (%)", round(mrv_match_rate, 2)),
     ]
