@@ -1,6 +1,6 @@
 # Maritime Traffic and Environmental Pressure Analysis
 
-This project is a two-person Big Data analytics pipeline that processes global AIS vessel tracking telemetry and integrates it with reported EU MRV ship CO₂ emissions. The pipeline runs on Apache Spark (Spark SQL, PySpark) deployed via Docker, saving aggregated results in column-oriented Parquet files.
+This project is a collaborative Big Data analytics pipeline that processes global AIS vessel tracking telemetry and integrates it with reported EU MRV ship CO₂ emissions. The pipeline runs on Apache Spark (Spark SQL, PySpark) deployed via Docker, saving aggregated results in column-oriented Parquet files.
 
 ---
 
@@ -27,13 +27,13 @@ The core objective is to analyze shipping movements and environmental pressure. 
 
 ## 3. Team Roles & Responsibilities
 
-* **Person A (Jonas):**
+* **Jonas:**
   * Spark cluster configuration (Docker)
   * Raw AIS dataset ingestion and schema mapping (`src/ais_schema.py`)
   * Data filtering and position cleaning (`src/clean_ais.py`, `src/load_ais.py`)
   * Spatial gridding and hotspot/waiting-time aggregation (`src/aggregate_hotspots.py`)
 
-* **Person B (Jan):**
+* **Jan:**
   * EU MRV CO₂ emissions dataset preparation (`spark/08_prepare_mrv_emissions.py`)
   * IMO number cleaning, standardization, and dataset matching (`spark/09_match_ais_mrv.py`)
   * Spark SQL analytical query development (`sql/`)
@@ -83,7 +83,7 @@ You can view the Spark Master Web UI at `http://localhost:8080` and Worker UI at
 
 ---
 
-### Step A: Run Person A Ingestion & Aggregation (Jonas)
+### Step A: Run Ingestion & Aggregation (Jonas)
 
 1. **Load and Clean AIS CSVs:**
    Reads raw CSVs from `/workspace/data/raw`, applies cleaning filters, and saves cleaned Parquet to `/workspace/data/processed/ais_parquet`.
@@ -107,7 +107,7 @@ You can view the Spark Master Web UI at `http://localhost:8080` and Worker UI at
 
 ---
 
-### Step B: Run Person B Emissions & Matching (Jan)
+### Step B: Run Emissions & Matching (Jan)
 
 1. **Prepare and Clean MRV Emissions Data:**
    Reads the raw emissions CSV, standardizes and cleans the IMO number field, formats emission counts, and exports clean Parquet.

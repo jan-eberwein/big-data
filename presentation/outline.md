@@ -1,19 +1,19 @@
 # Presentation Outline: Maritime Traffic & Environmental Pressure Analysis
 
-This document divides the 10-minute presentation slides and responsibilities between **Person A (Jonas)** and **Person B (Jan)**.
+This document divides the 10-minute presentation slides and responsibilities between **Jonas** and **Jan**.
 
 ---
 
 ## Presentation Details
 * **Total Time:** 10 minutes (approx. 1 minute per slide)
 * **Structure:** 10 slides
-* **Speakers:** Person A (Jonas) & Person B (Jan)
+* **Speakers:** Jonas & Jan
 
 ---
 
 ## Division of Slides
 
-### Part 1: Pipeline, Ingestion, and Big Data Architecture (Presented by Person A - Jonas)
+### Part 1: Pipeline, Ingestion, and Big Data Architecture (Presented by Jonas)
 * **Slide 1: Title & Overview**
   * Introduce the team, roles, and project goal.
 * **Slide 2: Motivation & Research Questions**
@@ -25,7 +25,7 @@ This document divides the 10-minute presentation slides and responsibilities bet
 * **Slide 5: AIS Schema Cleaning & Parquet Ingestion**
   * Detail coordinate filtering, velocity limits, blank value normalization, deduplication, and file size benefits of Parquet format.
 
-### Part 2: SQL Analysis, Emissions Matching, and Findings (Presented by Person B - Jan)
+### Part 2: SQL Analysis, Emissions Matching, and Findings (Presented by Jan)
 * **Slide 6: Traffic Hotspots & Spatial Distribution (RQ1 & RQ2)**
   * Show findings from Spark SQL hotspot queries (English Channel, ports, etc.).
 * **Slide 7: Vessel Speed Profile Analysis (RQ4)**
