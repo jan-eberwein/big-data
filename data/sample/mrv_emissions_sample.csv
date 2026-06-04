@@ -1,0 +1,9 @@
+IMO Number,Name,Ship type,Reporting Period,Technical efficiency,Total CO₂ emissions [m tonnes],Total time spent at sea [hours]
+9313072,MAERSK MC-KINNEY MOLLER,Container ship,2024,EEDI (1.23 g CO2/t·nm),45200.5,4200.0
+IMO 9481300,MSC OSCAR,Container ship,2024,EEDI (1.45 g CO2/t·nm),52100.2,4500.5
+9514022,BLUE MARLIN,Other ship type,2024,EIV (3.56 g CO2/t·nm),12500.0,1800.0
+9226372,VALE BRASIL,Bulk carrier,2024,EEDI (0.95 g CO2/t·nm),38000.8,3900.2
+9314337,TI OCEANIA,Tanker,2024,EIV (1.10 g CO2/t·nm),29000.4,3200.8
+9876543,GREEN CELESTIAL,LNG carrier,2024,EEDI (1.80 g CO2/t·nm),22000.1,2800.5
+,MALFORMED_IMO_VESSEL,Ro-Pax ship,2024,EIV (8.22 g CO2/t·nm),8500.2,1200.0
+INVALID,ANOTHER_BAD_VESSEL,Chemical tanker,2024,EIV (4.12 g CO2/t·nm),14200.1,1950.0

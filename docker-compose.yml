@@ -1,0 +1,42 @@
+services:
+  spark-master:
+    image: spark:4.1.2-scala2.13-java17-python3-ubuntu
+    container_name: maritime-spark-master
+    command:
+      - /opt/spark/bin/spark-class
+      - org.apache.spark.deploy.master.Master
+      - --host
+      - spark-master
+      - --port
+      - "7077"
+      - --webui-port
+      - "8080"
+    ports:
+      - "7077:7077"
+      - "8080:8080"
+    volumes:
+      - ./:/workspace
+      - ${RAW_DATA_DIR}:/workspace/data/raw:ro
+    working_dir: /workspace
+
+  spark-worker:
+    image: spark:4.1.2-scala2.13-java17-python3-ubuntu
+    container_name: maritime-spark-worker
+    command:
+      - /opt/spark/bin/spark-class
+      - org.apache.spark.deploy.worker.Worker
+      - spark://spark-master:7077
+      - --webui-port
+      - "8081"
+      - --cores
+      - "4"
+      - --memory
+      - "8g"
+    depends_on:
+      - spark-master
+    ports:
+      - "8081:8081"
+    volumes:
+      - ./:/workspace
+      - ${RAW_DATA_DIR}:/workspace/data/raw:ro
+    working_dir: /workspace

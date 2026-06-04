@@ -1,0 +1,33 @@
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.venv/
+venv/
+
+# Local environment files
+.env.local
+.env.*.local
+
+# Big data files and local outputs
+data/raw/
+data/processed/
+*.csv
+*.parquet
+*.zip
+*.gz
+
+# Small sample files may be committed intentionally.
+!data/sample/
+!data/sample/**
+
+# Pre-aggregated dashboard data (small derived outputs, not raw data).
+!dashboard/assets/
+!dashboard/assets/*.csv
+
+# OS/editor files
+.DS_Store
+.idea/
+.vscode/
