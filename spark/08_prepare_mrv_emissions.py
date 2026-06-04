@@ -104,6 +104,16 @@ def main() -> None:
     # Parse CSV lines into lists of fields
     parsed_rdd = data_rdd.map(parse_csv_line)
 
+    # Pad or truncate each parsed row to match the exact header length
+    num_cols = len(unique_headers)
+    def pad_or_truncate(row: list[str]) -> list[str]:
+        if len(row) < num_cols:
+            return row + [None] * (num_cols - len(row))
+        else:
+            return row[:num_cols]
+
+    parsed_rdd = parsed_rdd.map(pad_or_truncate)
+
     # Define schema as string fields to load all parsed lines
     schema = StructType([StructField(h, StringType(), True) for h in unique_headers])
 
