@@ -93,13 +93,21 @@ def main() -> None:
     if ais_imo_col != "imo_number":
         ais_df = ais_df.withColumnRenamed(ais_imo_col, "imo_number")
 
-    # Cast both IMO columns to Integer to ensure type compatibility and filter nulls
-    ais_df = ais_df.withColumn("imo_number", F.col("imo_number").cast("int")).filter(
-        F.col("imo_number").isNotNull()
-    )
-    mrv_df = mrv_df.withColumn("imo_number", F.col("imo_number").cast("int")).filter(
-        F.col("imo_number").isNotNull()
-    )
+    # Normalize IMO numbers before matching:
+    # strip whitespace → remove "IMO" prefix → keep only digits → cast to int → drop nulls/zeros
+    def normalize_imo_col(df, col_name):
+        return (
+            df.withColumn(
+                col_name,
+                F.regexp_replace(
+                    F.regexp_replace(F.upper(F.trim(F.col(col_name))), r"^IMO[\s\-:.]*", ""),
+                    r"[^0-9]", ""
+                ).cast("int")
+            ).filter(F.col(col_name).isNotNull() & (F.col(col_name) >= F.lit(100000)))
+        )
+
+    ais_df = normalize_imo_col(ais_df, "imo_number")
+    mrv_df = normalize_imo_col(mrv_df, "imo_number")
 
     print("Calculating dataset counts...")
     ais_total_vessels = ais_df.select("imo_number").distinct().count()
