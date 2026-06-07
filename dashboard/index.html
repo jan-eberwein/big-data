@@ -478,6 +478,76 @@
       text-align: center;
       margin-top: 12px;
     }
+
+    /* ── Responsive Styling ────────────────────────────────────── */
+    @media (max-width: 768px) {
+      header {
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 18px 20px;
+        gap: 12px;
+      }
+
+      .header-badge {
+        margin-left: 0;
+        align-self: flex-start;
+      }
+
+      header h1 {
+        font-size: 18px;
+      }
+
+      main {
+        padding: 18px 12px;
+      }
+
+      .card {
+        padding: 14px;
+      }
+
+      .map-wrap {
+        height: 380px;
+      }
+
+      .map-legend {
+        bottom: 10px;
+        right: 10px;
+        padding: 8px 10px;
+        min-width: 110px;
+      }
+
+      .scatter-wrap {
+        height: 280px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .kpi-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+      }
+
+      .kpi {
+        padding: 12px 14px;
+      }
+
+      .kpi-value {
+        font-size: 20px;
+      }
+
+      .map-stat-row {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 8px;
+      }
+
+      .map-stat {
+        padding: 8px 10px;
+      }
+
+      .map-stat-value {
+        font-size: 15px;
+      }
+    }
   </style>
 </head>
 
@@ -535,6 +605,67 @@
       The 13.85% match rate reflects the limited AIS window — vessels not active in international EEA waters during
       January are absent.
       Only ships &gt; 5,000 GT visiting EEA ports are included in MRV.
+    </div>
+
+    <!-- ── Hotspot Map ─────────────────────────────────────────── -->
+    <p class="section-label">Location-Based Traffic Hotspots</p>
+    <div class="map-section">
+      <div class="card full" style="padding-bottom:16px">
+        <h2>Maritime Traffic Grid Map — January 2024</h2>
+        <p class="sub" style="margin-bottom:14px">
+          Raw AIS GPS points aggregated into 0.5° × 0.5° grid cells (~55 km per side). Each square shows how much vessel
+          activity, congestion, or movement occurred in that area. Data source: NOAA AIS, 7.5 M position records.
+        </p>
+
+        <div class="map-controls">
+          <label>Metric:</label>
+          <button class="metric-btn active" data-metric="point_count" id="btn-points">Traffic density</button>
+          <button class="metric-btn" data-metric="distinct_vessels" id="btn-vessels">Unique vessels</button>
+          <button class="metric-btn" data-metric="wait_pct" id="btn-wait">Congestion %</button>
+          <button class="metric-btn" data-metric="avg_sog" id="btn-speed">Avg speed (kn)</button>
+          <label style="margin-left:8px">Type filter:</label>
+          <select class="type-select" id="type-filter">
+            <option value="all">All vessel types</option>
+            <option value="cargo">Cargo</option>
+            <option value="tanker">Tanker</option>
+            <option value="passenger">Passenger</option>
+            <option value="fishing">Fishing</option>
+            <option value="tug/tow">Tug / tow</option>
+            <option value="sailing">Sailing</option>
+            <option value="other">Other / unknown</option>
+          </select>
+        </div>
+
+        <div class="map-wrap">
+          <div id="hotspot-map"></div>
+          <div class="map-legend" id="map-legend">
+            <h4 id="legend-title">Traffic density</h4>
+            <div class="legend-bar" id="legend-bar"></div>
+            <div class="legend-labels">
+              <span>Low</span><span>High</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="map-stat-row" id="map-stats">
+          <div class="map-stat">
+            <div class="map-stat-label">Grid cells shown</div>
+            <div class="map-stat-value blue" id="stat-cells">—</div>
+          </div>
+          <div class="map-stat">
+            <div class="map-stat-label">Total AIS points</div>
+            <div class="map-stat-value cyan" id="stat-points">—</div>
+          </div>
+          <div class="map-stat">
+            <div class="map-stat-label">Peak cell (points)</div>
+            <div class="map-stat-value amber" id="stat-peak">—</div>
+          </div>
+          <div class="map-stat">
+            <div class="map-stat-label">Busiest region</div>
+            <div class="map-stat-value green" id="stat-region">—</div>
+          </div>
+        </div>
+      </div>
     </div>
 
     <!-- Bar charts -->
@@ -601,66 +732,7 @@
       </div>
     </div>
 
-    <!-- ── Hotspot Map ─────────────────────────────────────────── -->
-    <p class="section-label">Location-Based Traffic Hotspots</p>
-    <div class="map-section">
-      <div class="card full" style="padding-bottom:16px">
-        <h2>Maritime Traffic Grid Map — January 2024</h2>
-        <p class="sub" style="margin-bottom:14px">
-          Raw AIS GPS points aggregated into 0.5° × 0.5° grid cells (~55 km per side). Each square shows how much vessel
-          activity, congestion, or movement occurred in that area. Data source: NOAA AIS, 7.5 M position records.
-        </p>
 
-        <div class="map-controls">
-          <label>Metric:</label>
-          <button class="metric-btn active" data-metric="point_count" id="btn-points">Traffic density</button>
-          <button class="metric-btn" data-metric="distinct_vessels" id="btn-vessels">Unique vessels</button>
-          <button class="metric-btn" data-metric="wait_pct" id="btn-wait">Congestion %</button>
-          <button class="metric-btn" data-metric="avg_sog" id="btn-speed">Avg speed (kn)</button>
-          <label style="margin-left:8px">Type filter:</label>
-          <select class="type-select" id="type-filter">
-            <option value="all">All vessel types</option>
-            <option value="cargo">Cargo</option>
-            <option value="tanker">Tanker</option>
-            <option value="passenger">Passenger</option>
-            <option value="fishing">Fishing</option>
-            <option value="tug/tow">Tug / tow</option>
-            <option value="sailing">Sailing</option>
-            <option value="other">Other / unknown</option>
-          </select>
-        </div>
-
-        <div class="map-wrap">
-          <div id="hotspot-map"></div>
-          <div class="map-legend" id="map-legend">
-            <h4 id="legend-title">Traffic density</h4>
-            <div class="legend-bar" id="legend-bar"></div>
-            <div class="legend-labels">
-              <span>Low</span><span>High</span>
-            </div>
-          </div>
-        </div>
-
-        <div class="map-stat-row" id="map-stats">
-          <div class="map-stat">
-            <div class="map-stat-label">Grid cells shown</div>
-            <div class="map-stat-value blue" id="stat-cells">—</div>
-          </div>
-          <div class="map-stat">
-            <div class="map-stat-label">Total AIS points</div>
-            <div class="map-stat-value cyan" id="stat-points">—</div>
-          </div>
-          <div class="map-stat">
-            <div class="map-stat-label">Peak cell (points)</div>
-            <div class="map-stat-value amber" id="stat-peak">—</div>
-          </div>
-          <div class="map-stat">
-            <div class="map-stat-label">Busiest region</div>
-            <div class="map-stat-value green" id="stat-region">—</div>
-          </div>
-        </div>
-      </div>
-    </div>
 
   </main>
 
