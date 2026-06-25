@@ -71,12 +71,9 @@ def main() -> None:
     # Load Cleaned MRV emissions data
     mrv_df = load_dataframe(spark, args.mrv_input)
     if mrv_df is None:
-        fallback_path = "data/sample/mrv_emissions_sample.csv"
-        print(f"Attempting fallback to sample MRV emissions data: {fallback_path}")
-        # Note: If loading raw sample, we should clean it first.
-        # But we assume preparation script was run. Let's try to load the cleaned version first.
-        # If it doesn't exist, we will report error.
-        print("Cleaned MRV emissions data not found. Please run prepare_mrv_emissions first.")
+        # The match requires the cleaned MRV Parquet (output of step 04); the raw
+        # sample is not cleaned on the fly here.
+        print("Cleaned MRV emissions data not found. Run 04_prepare_mrv_emissions first.")
         spark.stop()
         sys.exit(1)
 

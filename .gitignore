@@ -7,13 +7,17 @@ __pycache__/
 .venv/
 venv/
 
-# Local environment files
+# Local environment files (machine-specific; use .env.example as the template)
+.env
 .env.local
 .env.*.local
+!.env.example
 
 # Big data files and local outputs
 data/raw/
 data/processed/
+output/
+spark-warehouse/
 *.csv
 *.parquet
 *.zip
@@ -25,7 +29,7 @@ data/processed/
 
 # Pre-aggregated dashboard data (small derived outputs, not raw data).
 !dashboard/assets/
-!dashboard/assets/*.csv
+!dashboard/assets/*.json
 
 # OS/editor files
 .DS_Store

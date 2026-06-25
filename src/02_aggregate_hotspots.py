@@ -3,6 +3,8 @@ import posixpath
 import time
 from decimal import Decimal
 
+from grid_utils import DEFAULT_GRID_SIZE
+from grid_utils import add_grid_index_columns
 from pyspark import StorageLevel
 from pyspark.sql import DataFrame
 from pyspark.sql import SparkSession
@@ -12,16 +14,15 @@ from pyspark.sql import functions as F
 
 DEFAULT_INPUT = "/workspace/data/processed/ais_parquet"
 DEFAULT_OUTPUT = "/workspace/data/processed/aggregations"
-DEFAULT_GRID_SIZE = 0.1
 DEFAULT_WAITING_SPEED_THRESHOLD = 1.0
 DEFAULT_WAITING_MIN_MINUTES = 30
 DEFAULT_DISTINCT_RSD = 0.02
-DEFAULT_EXECUTOR_MEMORY = "4g"
-DEFAULT_EXECUTOR_MEMORY_OVERHEAD = "1g"
-DEFAULT_EXECUTOR_CORES = "1"
+DEFAULT_EXECUTOR_MEMORY = "20g"
+DEFAULT_EXECUTOR_MEMORY_OVERHEAD = "2g"
+DEFAULT_EXECUTOR_CORES = "8"
 DEFAULT_EXECUTOR_INSTANCES = "1"
-DEFAULT_TOTAL_EXECUTOR_CORES = "1"
-DEFAULT_SHUFFLE_PARTITIONS = "800"
+DEFAULT_TOTAL_EXECUTOR_CORES = "8"
+DEFAULT_SHUFFLE_PARTITIONS = "96"
 
 GRID_COLUMNS = [
     "grid_id",
@@ -121,21 +122,9 @@ def grid_precision(grid_size: float) -> int:
 def add_grid_columns(df: DataFrame, grid_size: float) -> DataFrame:
     precision = grid_precision(grid_size)
     grid_size_lit = F.lit(grid_size)
-    df_with_index = df.withColumn(
-        "grid_lat_index", F.floor(F.col("latitude") / grid_size_lit).cast("long")
-    ).withColumn(
-        "grid_lon_index", F.floor(F.col("longitude") / grid_size_lit).cast("long")
-    )
+    df_with_index = add_grid_index_columns(df, grid_size)
     return (
         df_with_index.withColumn(
-            "grid_id",
-            F.concat_ws(
-                ":",
-                F.col("grid_lat_index").cast("string"),
-                F.col("grid_lon_index").cast("string"),
-            ),
-        )
-        .withColumn(
             "grid_lat_min", F.round(F.col("grid_lat_index") * grid_size_lit, precision)
         )
         .withColumn(

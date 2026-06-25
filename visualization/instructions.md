@@ -9,7 +9,7 @@ To maintain the "Big Data" integrity of this project, **never process raw AIS tr
 ## Recommended Visualization Approaches
 
 ### Option A: Tableau Desktop / Public (Recommended for Local BI)
-* **Data Sources:** Load the CSV files exported from the aggregated Parquets (e.g. from `output/tables/` or `results/tables/`) or connect directly to Parquet using the Tableau Hyper API / Amazon Athena.
+* **Data Sources:** Load the CSV files exported from the aggregated Parquets (e.g. from `output/tables/`) or connect directly to Parquet using the Tableau Hyper API / Amazon Athena.
 * **Why:** Excellent mapping capabilities for latitude/longitude grid centers and high-quality charts for presentation screenshots.
 
 ### Option B: Databricks SQL Dashboards (Recommended for Cloud BI)
