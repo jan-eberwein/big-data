@@ -59,7 +59,7 @@ The datasets are matched using the **IMO (International Maritime Organization) n
 
 * **Why IMO and not MMSI?** MMSI numbers are assigned by flag states and can change when a vessel is sold or reflagged. The IMO number is assigned to the hull upon construction and remains permanently linked to that vessel throughout its service life, making it the most robust key for long-term emissions tracking.
 * **Inconsistencies:** The raw AIS and MRV datasets contain formatting inconsistencies in the IMO columns. The MRV dataset often lists IMO numbers as strings with text prefixes (e.g., `IMO 9481300`), spaces, or missing values.
-* **Cleaning Approach:** In `spark/08_prepare_mrv_emissions.py`, the IMO string is cleaned by stripping non-numeric characters, padding/checking for exactly 7 digits, casting to integer, and filtering out invalid entries.
+* **Cleaning Approach:** In `src/04_prepare_mrv_emissions.py`, the IMO string is cleaned by stripping non-numeric characters, padding/checking for exactly 7 digits, casting to integer, and filtering out invalid entries.
 
 ---
 

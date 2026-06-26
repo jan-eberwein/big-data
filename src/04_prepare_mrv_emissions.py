@@ -3,6 +3,7 @@ import csv
 import os
 import sys
 from pyspark.sql import SparkSession
+from pyspark.sql import Window
 from pyspark.sql import functions as F
 from pyspark.sql.types import IntegerType, DoubleType, StructField, StructType, StringType
 
@@ -83,8 +84,12 @@ def main() -> None:
         spark.stop()
         sys.exit(1)
 
-    # Ingest the file as an RDD first to skip the 2 metadata header rows.
-    # The 3rd line contains the actual column headers.
+    # The EU MRV CSV is not a plain table: rows 0-1 are publication metadata and
+    # the real column header is on row 2 (0-based). Spark's DataFrame CSV reader
+    # has no clean "skip N rows, then treat row N as the header" option, so we
+    # read the raw lines as an RDD, take the true header from line index 2,
+    # drop the first 3 rows, parse the remaining lines, and build a typed
+    # DataFrame from that. Everything downstream is the standard DataFrame API.
     rdd = spark.sparkContext.textFile(args.input)
 
     # Extract the header row (index 2 in 0-based indexing)
@@ -229,8 +234,18 @@ def main() -> None:
     ]
     final_df = clean_df.select(*output_cols)
 
-    # Deduplicate by IMO number, keeping the first occurrence
-    final_df = final_df.dropDuplicates(["imo_number"])
+    # Deduplicate by IMO number deterministically: keep the most recent
+    # reporting period, breaking ties by the highest reported emissions.
+    # (dropDuplicates would keep an arbitrary row, so results varied per run.)
+    dedup_window = Window.partitionBy("imo_number").orderBy(
+        F.col("reporting_period").desc_nulls_last(),
+        F.col("total_co2_emissions").desc_nulls_last(),
+    )
+    final_df = (
+        final_df.withColumn("_dedup_rank", F.row_number().over(dedup_window))
+        .filter(F.col("_dedup_rank") == 1)
+        .drop("_dedup_rank")
+    )
 
     # Write cleaned Parquet output
     print(f"Writing cleaned emissions to Parquet: {args.output}")

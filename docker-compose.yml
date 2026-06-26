@@ -17,7 +17,10 @@ services:
     volumes:
       - ./:/workspace
       - ${RAW_DATA_DIR}:/workspace/data/raw:ro
+      - ${PROCESSED_DATA_DIR}:/workspace/data/processed
     working_dir: /workspace
+    environment:
+      - SPARK_LOCAL_DIRS=/workspace/data/processed/_spill
 
   spark-worker:
     image: spark:4.1.2-scala2.13-java17-python3-ubuntu
@@ -29,9 +32,9 @@ services:
       - --webui-port
       - "8081"
       - --cores
-      - "4"
+      - "12"
       - --memory
-      - "8g"
+      - "34g"
     depends_on:
       - spark-master
     ports:
@@ -39,4 +42,7 @@ services:
     volumes:
       - ./:/workspace
       - ${RAW_DATA_DIR}:/workspace/data/raw:ro
+      - ${PROCESSED_DATA_DIR}:/workspace/data/processed
     working_dir: /workspace
+    environment:
+      - SPARK_LOCAL_DIRS=/workspace/data/processed/_spill

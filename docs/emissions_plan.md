@@ -35,17 +35,17 @@ As part of this collaborative effort, Jan is responsible for integrating environ
 
 | Deliverable Path | Description | Status |
 |---|---|---|
-| `spark/08_prepare_mrv_emissions.py` | PySpark ETL to clean raw MRV emissions CSV | Pending |
-| `spark/09_match_ais_mrv.py` | PySpark script to join AIS and MRV datasets | Pending |
-| `sql/hotspot_queries.sql` | Spark SQL queries for traffic hotspots | Pending |
-| `sql/vessel_type_queries.sql` | Spark SQL queries for vessel type analysis | Pending |
-| `sql/speed_queries.sql` | Spark SQL queries for speed statistics | Pending |
-| `sql/congestion_queries.sql` | Spark SQL queries for congestion proxies | Pending |
-| `sql/emissions_queries.sql` | Spark SQL queries for AIS vs CO₂ emissions | Pending |
-| `visualization/instructions.md` | BI Dashboard setup instructions | Pending |
-| `presentation/outline.md` | Joint presentation division outline | Pending |
-| `presentation/slide_content.md` | Detailed text and layout for slides 1–10 | Pending |
-| `presentation/script.md` | 10-minute presentation script | Pending |
+| `src/04_prepare_mrv_emissions.py` | PySpark ETL to clean raw MRV emissions CSV | Complete |
+| `src/05_match_ais_mrv.py` | PySpark script to join AIS and MRV datasets | Complete |
+| `sql/hotspot_queries.sql` | Spark SQL queries for traffic hotspots | Complete |
+| `sql/vessel_type_queries.sql` | Spark SQL queries for vessel type analysis | Complete |
+| `sql/speed_queries.sql` | Spark SQL queries for speed statistics | Complete |
+| `sql/congestion_queries.sql` | Spark SQL queries for congestion proxies | Complete |
+| `sql/emissions_queries.sql` | Spark SQL queries for AIS vs CO₂ emissions | Complete |
+| `visualization/instructions.md` | BI Dashboard setup instructions | Complete |
+| `presentation/outline.md` | Joint presentation division outline | Complete |
+| `presentation/slide_content.md` | Detailed text and layout for slides 1–10 | Complete |
+| `presentation/script.md` | 10-minute presentation script | Complete |
 
 ---
 

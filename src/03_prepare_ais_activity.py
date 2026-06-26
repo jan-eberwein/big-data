@@ -1,4 +1,6 @@
 import argparse
+from grid_utils import DEFAULT_GRID_SIZE
+from grid_utils import add_grid_index_columns
 from pyspark.sql import SparkSession
 from pyspark.sql import functions as F
 from pyspark.sql.types import IntegerType
@@ -21,6 +23,11 @@ def parse_args() -> argparse.Namespace:
         default=DEFAULT_OUTPUT,
         help=f"Output Parquet directory. Defaults to {DEFAULT_OUTPUT}.",
     )
+    parser.add_argument(
+        "--shuffle-partitions",
+        default="16",
+        help="Spark shuffle partitions (raise for full-year data). Defaults to 16.",
+    )
     return parser.parse_args()
 
 
@@ -29,7 +36,7 @@ def main() -> None:
 
     spark = (
         SparkSession.builder.appName("prepare-ais-activity-by-imo")
-        .config("spark.sql.shuffle.partitions", "16")
+        .config("spark.sql.shuffle.partitions", args.shuffle_partitions)
         .getOrCreate()
     )
 
@@ -52,20 +59,20 @@ def main() -> None:
     # Filter out empty or invalid IMO numbers
     ais_df = ais_df.filter(F.col("imo_number").isNotNull())
 
-    # 2. Add temporary grid cell column to calculate unique regions visited
-    grid_lat = F.floor(F.col("latitude") / 0.1).cast("long")
-    grid_lon = F.floor(F.col("longitude") / 0.1).cast("long")
-    ais_df = ais_df.withColumn("grid_cell", F.concat_ws(":", grid_lat, grid_lon))
+    # 2. Add a grid cell column (shared helper) to count unique regions visited
+    ais_df = add_grid_index_columns(ais_df, DEFAULT_GRID_SIZE)
 
     # 3. Perform group aggregation by IMO number
     print("Aggregating AIS activity by IMO...")
     agg_df = ais_df.groupBy("imo_number").agg(
-        F.first("vessel_type").alias("vessel_type"),  # Take the first associated vessel type
+        # vessel_type is effectively static per IMO; max() is used purely for
+        # run-to-run determinism (first() would pick an arbitrary row).
+        F.max("vessel_type").alias("vessel_type"),
         F.count("*").alias("ais_point_count"),
         F.avg("sog").alias("avg_speed"),
         F.sum(F.when(F.col("sog") < 1.0, 1).otherwise(0)).alias("slow_movement_count"),
         F.countDistinct(F.to_date("base_date_time")).alias("unique_days_active"),
-        F.countDistinct("grid_cell").alias("traffic_region_count"),
+        F.countDistinct("grid_id").alias("traffic_region_count"),
     )
 
     print(f"Writing aggregated AIS activity to Parquet: {args.output}")

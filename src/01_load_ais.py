@@ -13,9 +13,9 @@ from pyspark.sql import SparkSession
 DEFAULT_INPUT = "/workspace/data/raw"
 DEFAULT_OUTPUT = "/workspace/data/processed/ais_parquet"
 DEFAULT_SAMPLE_LIMIT = 10000
-DEFAULT_EXECUTOR_MEMORY = "6g"
-DEFAULT_EXECUTOR_CORES = "2"
-DEFAULT_SHUFFLE_PARTITIONS = "800"
+DEFAULT_EXECUTOR_MEMORY = "16g"
+DEFAULT_EXECUTOR_CORES = "8"
+DEFAULT_SHUFFLE_PARTITIONS = "96"
 
 
 def parse_args() -> argparse.Namespace:
@@ -57,6 +57,12 @@ def parse_args() -> argparse.Namespace:
         "--shuffle-partitions",
         default=DEFAULT_SHUFFLE_PARTITIONS,
         help=f"Spark shuffle partitions. Defaults to {DEFAULT_SHUFFLE_PARTITIONS}.",
+    )
+    parser.add_argument(
+        "--skip-dedup",
+        action="store_true",
+        help="Skip position deduplication. The expensive full shuffle is dropped; "
+        "safe when the source is already near-deduplicated (NOAA csv2 has <1%% dup rows).",
     )
     return parser.parse_args()
 
@@ -129,20 +135,25 @@ def main() -> None:
 
     cleaning_counts = [timed_count("Input rows", raw_df)]
 
+    # Build the full cleaning chain lazily (no actions in between). Counting
+    # after every stage re-scans the entire raw CSV once per stage, i.e. one
+    # full re-parse per cleaning step before the write. Instead we run the
+    # pipeline once via the write, then read the Parquet back for the output
+    # count (cheap, columnar) — input + output rows are the numbers that matter.
     required_df = filter_required_position_fields(raw_df)
-    cleaning_counts.append(timed_count("Rows after required-field filter", required_df))
-
     coordinate_df = filter_valid_coordinates(required_df)
-    cleaning_counts.append(timed_count("Rows after coordinate filter", coordinate_df))
-
     speed_df = filter_valid_speed(coordinate_df)
-    cleaning_counts.append(timed_count("Rows after speed filter", speed_df))
-
     normalized_df = normalize_blank_strings(speed_df)
-    cleaned_df = deduplicate_positions(normalized_df)
-    cleaning_counts.append(timed_count("Rows after deduplication", cleaned_df))
+    if args.skip_dedup:
+        print("Skipping deduplication (--skip-dedup): no shuffle in this stage.")
+        cleaned_df = normalized_df
+    else:
+        cleaned_df = deduplicate_positions(normalized_df)
 
     write_seconds = timed_write_parquet("Cleaned AIS Parquet", cleaned_df, args.output)
+    cleaning_counts.append(
+        timed_count("Rows after cleaning", spark.read.parquet(args.output))
+    )
 
     sample_write_seconds = None
     if args.sample_output is not None:

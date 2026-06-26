@@ -38,13 +38,3 @@ def normalize_blank_strings(df: DataFrame) -> DataFrame:
 
 def deduplicate_positions(df: DataFrame) -> DataFrame:
     return df.dropDuplicates(DUPLICATE_POSITION_COLUMNS)
-
-
-def clean_ais_dataframe(df: DataFrame) -> DataFrame:
-    return deduplicate_positions(
-        normalize_blank_strings(
-            filter_valid_speed(
-                filter_valid_coordinates(filter_required_position_fields(df))
-            )
-        )
-    )
