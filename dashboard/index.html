@@ -619,7 +619,7 @@
         <div class="map-controls">
           <label>Metric:</label>
           <button class="metric-btn active" data-metric="point_count" id="btn-points">Traffic density</button>
-          <button class="metric-btn" data-metric="distinct_vessels" id="btn-vessels">Unique vessels</button>
+          <button class="metric-btn" data-metric="distinct_vessels" id="btn-vessels">Vessel activity</button>
           <button class="metric-btn" data-metric="wait_pct" id="btn-wait">Congestion %</button>
           <button class="metric-btn" data-metric="avg_sog" id="btn-speed">Avg speed (kn)</button>
           <label style="margin-left:8px">Type filter:</label>
@@ -1011,7 +1011,7 @@
 
     const METRIC_CONFIG = {
       point_count: { label: "Traffic density", unit: "AIS pts", grad: ["#1e3a5f", "#1d4ed8", "#7c3aed", "#dc2626", "#f97316", "#fbbf24"] },
-      distinct_vessels: { label: "Unique vessels", unit: "vessels", grad: ["#1e3a5f", "#0e7490", "#059669", "#16a34a", "#84cc16", "#fbbf24"] },
+      distinct_vessels: { label: "Vessel activity (proxy)", unit: "activity", grad: ["#1e3a5f", "#0e7490", "#059669", "#16a34a", "#84cc16", "#fbbf24"] },
       wait_pct: { label: "Congestion %", unit: "%", grad: ["#1e3a5f", "#92400e", "#b45309", "#d97706", "#f59e0b", "#fef08a"] },
       avg_sog: { label: "Avg speed (kn)", unit: "kn", grad: ["#1e3a5f", "#0c4a6e", "#0369a1", "#0ea5e9", "#38bdf8", "#e0f2fe"] },
     };
@@ -1100,7 +1100,7 @@
         rect.bindPopup(`
       <div class="popup-title">Grid cell ${cell.lat_c.toFixed(2)}°N, ${cell.lon_c.toFixed(2)}°E</div>
       <div class="popup-row"><span class="popup-key">AIS points</span><span class="popup-val">${cell.point_count.toLocaleString()}</span></div>
-      <div class="popup-row"><span class="popup-key">Unique vessels</span><span class="popup-val">${cell.distinct_vessels.toLocaleString()}</span></div>
+      <div class="popup-row"><span class="popup-key">Vessel activity</span><span class="popup-val">${cell.distinct_vessels.toLocaleString()}</span></div>
       <div class="popup-row"><span class="popup-key">Avg speed</span><span class="popup-val">${cell.avg_sog} kn</span></div>
       ${waitLabel}
       <div class="popup-row"><span class="popup-key">Dominant type</span><span class="popup-val">${cell.dominant_type}</span></div>
